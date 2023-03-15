@@ -124,22 +124,35 @@ We can make several observations from the table and graph above:
 
 **Cabin number data**
 
-Histogram of the quantity of VIP passengers versus room number :
+Histogram of the quantity of passengers according to VIP status versus room number :
 
 | VIP | Non-VIP |
 |:---:|:-------:|
 | !['room_vip'](img/cabin_num_vip.png) |!['room_non_vip'](img/cabin_num_nonvip.png)|
 
-Histogram of the quantity of non-VIP passengers versus room number :
+From those graphs we can see that, either VIP or not, the cabins that received the highest proportion of passengers range between 0 and 300.
 
+Almost 83% of the VIP passengers where located in a cabin whose number ranged between 0 and 300.
 
-On the other hand, the side of the cabin doesn't seem to be correlated to the VIP status of the families with a proportional repartition :
+About 48% of the non-VIP passengers where located in a cabin with a number in the same range.
+
+**Cabin side**
 
 | CabinSide   |   Non-VIP |   VIP |    % |
 |:------------|----------:|------:|-----:|
 | P           |      4011 |   102 | 2.48 |
 | S           |      4093 |    91 | 2.17 |
 | Total       |      8104 |   193 | 2.33 |
+
+Looking again at the repartition of VIP passengers, we can see that the side of the cabin doesn't seem to be correlated to the VIP status of the passengers.
+
+**Filling the missing values**
+
+We can now establish a strategy to fill the missing data of the cabin columns :
+
+- According to the VIP status of the passenger, we'll assign the cabin deck and the cabin number with a probability proportional to their repartition in those categories
+- The cabin side will be assigned with an equal probability of 50%
+- If some values are still missing because we don't know the VIP status of the passenger, we'll try to assign it the same room as one of its family member, hoping that he wasn't traveling alone.
 
 ### Training
 
