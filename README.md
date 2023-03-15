@@ -44,6 +44,103 @@ $$
 - Select relevant features to solve the problem
 - Tokenize string features
 - Scale the data to range between $[0\cdots 1]$
+
+#### Filling missing data
+Let's take a look at the dataset information :
+
+| # | Column      | Non-Null Count |  Dtype  |
+|:-:|:-----------:|:--------------:|:-------:|
+| 0 | PassengerId | 8693           | object  |
+| 1 | HomePlanet  | 8492           | object  |
+| 2 | CryoSleep   | 8476           | object  |
+| 3 | Cabin       | 8494           | object  |
+| 4 | Destination | 8511           | object  |
+| 5 | Age         | 8514           | float64 |
+| 6 | VIP         | 8490           | object  |
+| 7 | RoomService | 8512           | float64 |
+| 8 | FoodCourt   | 8510           | float64 |
+| 9 | ShoppingMail| 8485           | float64 |
+|10 | Spa         | 8510           | float64 |
+|11 | VRDeck      | 8505           | float64 |
+|12 | Name        | 8493           | object  |
+|13 | Transported | 8693           | bool    |
+
+We can see every column is missing data but the **PassengerId** and the **Transported** columns.
+
+##### Name and PassengerId
+
+If we take a closer look to the **PassengerId** column and relate it to the **Name** column, we can make sense of the passenger id's pattern :
+
+|    |   PassengerId | Name               |
+|---:|--------------:|:-------------------|
+|  0 |       0001_01 | Maham Ofracculy    |
+|  1 |       0002_01 | Juanna Vines       |
+|  2 |       0003_01 | Altark Susent      |
+|  3 |       0003_02 | Altark Susent      |
+|  4 |       0004_01 | Willy Santantines  |
+|  5 |       0005_01 | Sandie Hinetthews  |
+|  6 |       0006_01 | Billex Jacostaffey |
+|  7 |       0006_02 | Billex Jacostaffey |
+|  8 |       0007_01 | Andona Beston      |
+|  9 |       0008_01 | Erraiam Flatic     |
+
+From the rows 2, 3 and 6, 7 we can understand that the four first digits are used to identify the person's last name, and the last two digits to identify the person amongst its family.
+
+We can simplify the **Name** column by only keeping the lastname, and trying to fill in the blanks according to the **PassengerId** column, with values sharing the same four first digits.
+
+Another approach if we need to infer data from being members of a same family would simply be to split the ids with the underscore and create a new column named **FamilyId**
+
+##### Cabin and Family
+
+Now that we've found a way to group people by family, we can try to fill in some blanks in the **Cabin** column if we assume that people from the same family will share common cabins, or at least same kind of cabins.
+
+From the data field description, we know that the cabin number is formatted according to the pattern **deck/num/side**.
+
+To see correlations more easily, we can create 3 new columns out of the **Cabin** column, being **CabinDeck**, **CabinNumber** and **CabinSide**.
+
+**Deck Data**
+
+Let's see if we can find a correlation between the Deck of the cabin and wether the person in it is VIP or not :
+
+!['deck-repartition'](img/cabin_desks.png)
+
+| CabinDeck   |   Non-VIP |   VIP |  VIP% |
+|:------------|----------:|------:|------:|
+| A           |       215 |    35 | 14    |
+| B           |       725 |    42 |  5.48 |
+| C           |       687 |    41 |  5.63 |
+| D           |       438 |    31 |  6.61 |
+| E           |       846 |    15 |  1.74 |
+| F           |      2695 |    29 |  1.06 |
+| G           |      2493 |     0 |  0    |
+| T           |         5 |     0 |  0    |
+| Total       |      8104 |   193 |  2.33 |
+
+We can make several observations from the table and graph above:
+- The majority of the passengers (64%) are located on the decks F and G
+- There is an over-representation of VIP passengers in the decks A, B, C and D, and under-represented on decks E and F, compared with their proportion amongst the passengers on the ship
+- The deck A is the deck with the highest proportion of VIP passengers
+- No VIP did travel on decks G and T
+
+**Cabin number data**
+
+Histogram of the quantity of VIP passengers versus room number :
+
+| VIP | Non-VIP |
+|:---:|:-------:|
+| !['room_vip'](img/cabin_num_vip.png) |!['room_non_vip'](img/cabin_num_nonvip.png)|
+
+Histogram of the quantity of non-VIP passengers versus room number :
+
+
+On the other hand, the side of the cabin doesn't seem to be correlated to the VIP status of the families with a proportional repartition :
+
+| CabinSide   |   Non-VIP |   VIP |    % |
+|:------------|----------:|------:|-----:|
+| P           |      4011 |   102 | 2.48 |
+| S           |      4093 |    91 | 2.17 |
+| Total       |      8104 |   193 | 2.33 |
+
 ### Training
 
 #### Loss function
